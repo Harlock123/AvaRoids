@@ -1,0 +1,98 @@
+## [Visual Studio]
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# User-specific files (DotSettings)
+*.sln.DotSettings.user
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bin/
+obj/
+external/
+node_modules/
+publish/
+for-deploy/
+
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+# Uncomment if you have tasks that create the TestResults folder
+#TestResults/
+
+# Microsoft Azure Build Output
+csx/
+*.build.csdef
+
+# Microsoft Azure Cloud Service projects
+*.pcfg
+
+# Complex outputs
+*.ssuo
+*.cache
+*.keep
+*.bak
+*.log
+*.tmp
+*.err
+
+## [JetBrains Rider]
+.idea/
+*.sln.DotSettings
+
+## [.NET / C#]
+# NuGet Packages
+*.nupkg
+# NuGet symbol packages
+*.snupkg
+# The packages folder can be ignored because of Package Restore
+**/[Pp]ackages/*
+# except build/, which is used as an MSBuild target.
+!**/[Pp]ackages/build/
+# Uncomment if using NuGet Type Mock
+#**/[Pp]ackages/TypeMock.Intermediate/
+# Empty folder/file package tracking
+#**/[Pp]ackages/packages.config.xml
+
+# Resource Manager code generated files
+*.Designer.cs
+
+# Backup and restore files from MSBuild
+*.bak
+*.cache
+*.intermediate
+*.old.sln
+*.old.csproj
+
+# BUnit test project output
+TestResults/
+
+## [OS Specific]
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+## [Avalonia]
+# Avalonia uses standard .NET build outputs which are covered above.
+
+## [Project Specific]
+# Native libraries that are restored or bundled (if they shouldn't be in source control)
+# Based on the file structure, runtimes/ contains SDL2 binaries.
+# If these are part of the source control by intention, don't ignore them.
+# Usually, they are restored via NuGet or should be kept if not available via NuGet.
+# However, bin/ and obj/ are definitely to be ignored.

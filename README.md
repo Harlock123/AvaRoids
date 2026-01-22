@@ -1,0 +1,114 @@
+# AvaRoids
+
+A classic Asteroids arcade game clone built with .NET and Avalonia UI, featuring vector graphics rendering.
+
+## Screenshots
+
+The game features classic vector-style graphics with white lines on a black background, faithful to the original 1979 arcade aesthetic.
+
+## Requirements
+
+- .NET 9.0 SDK
+- Compatible with Windows, macOS, and Linux
+
+SDL2 native libraries are bundled with the application - no additional installation required.
+
+## Building and Running
+
+```bash
+# Clone or navigate to the project directory
+cd AvaRoids
+
+# Build the project
+dotnet build
+
+# Run the game
+dotnet run
+```
+
+## Controls
+
+| Key | Action |
+|-----|--------|
+| **W** | Thrust forward |
+| **A** | Rotate left |
+| **D** | Rotate right |
+| **Space** | Fire bullets |
+| **ESC** | Pause game |
+| **ESC** (while paused) | Exit game |
+| **Any key** (while paused) | Resume game |
+| **Space** (on Game Over) | Restart game |
+
+## Gameplay
+
+- Destroy asteroids by shooting them with your ship
+- Large asteroids split into 2 medium asteroids when shot
+- Medium asteroids split into 2 small asteroids when shot
+- Small asteroids are destroyed completely when shot
+- Explosions with particle effects appear when asteroids or your ship are destroyed
+- Avoid colliding with asteroids - you have 3 lives
+- After losing a life, you respawn with brief invincibility (indicated by flashing)
+- Clear all asteroids to advance to the next wave (more asteroids spawn each wave)
+- Press ESC to pause the game at any time
+
+## Scoring
+
+| Asteroid Size | Points |
+|---------------|--------|
+| Small | 100 |
+| Medium | 50 |
+| Large | 20 |
+
+## Physics
+
+- **Zero-G Movement**: Your ship maintains its velocity after thrusting. There is no friction in space!
+- **Screen Wrapping**: Flying off one edge of the screen wraps you to the opposite side
+- **Momentum**: Plan your movements carefully - you'll need to thrust in the opposite direction to slow down
+
+## Sound Effects
+
+- **Weapon**: Fires when shooting bullets
+- **Thruster**: Loops while holding the thrust key
+- **Explosion**: Plays when asteroids or ship are destroyed
+
+## Project Structure
+
+```
+AvaRoids/
+├── AvaRoids.sln
+├── AvaRoids.csproj
+├── Program.cs
+├── App.axaml / App.axaml.cs
+├── MainWindow.axaml / MainWindow.axaml.cs
+├── Models/
+│   ├── AsteroidSize.cs      # Enum: Large, Medium, Small
+│   ├── GameObject.cs        # Base class with position, velocity, collision
+│   ├── Ship.cs              # Player ship with thrust and rotation
+│   ├── Asteroid.cs          # Irregular polygon asteroids with splitting
+│   ├── Bullet.cs            # Projectile with lifetime limit
+│   └── Explosion.cs         # Particle explosion effect
+├── Engine/
+│   ├── GameEngine.cs        # Game loop, state management, collisions
+│   ├── InputHandler.cs      # Keyboard input tracking
+│   └── SoundManager.cs      # SDL2-based audio playback
+├── Views/
+│   └── GameCanvas.cs        # Custom Avalonia control for rendering
+└── Sounds/
+    ├── Weapon.wav           # Shooting sound effect
+    ├── Thruster.wav         # Engine thrust sound
+    └── Explosion1.wav       # Explosion sound effect
+```
+
+## Technical Details
+
+- **Framework**: Avalonia UI 11.x
+- **Audio**: SDL2 native audio API with custom mixing (bundled libraries)
+- **Rendering**: Custom `Control` with `DrawingContext` for vector graphics
+- **Game Loop**: 60 FPS using `DispatcherTimer`
+- **Collision Detection**: Circle-based bounding radius collision
+- **Asteroids**: Procedurally generated irregular polygons with 8-12 vertices
+- **Effects**: Particle-based explosion animations with fade-out
+
+## License
+
+MIT License

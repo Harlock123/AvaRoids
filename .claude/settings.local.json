@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet new:*)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet sln:*)",
+      "Bash(dotnet add package:*)",
+      "Bash(brew list:*)",
+      "Bash(brew install:*)",
+      "Bash(dotnet remove:*)",
+      "Bash(ls:*)",
+      "Bash(dotnet run)"
+    ]
+  }
+}
