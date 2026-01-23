@@ -9,7 +9,9 @@
       "Bash(brew install:*)",
       "Bash(dotnet remove:*)",
       "Bash(ls:*)",
-      "Bash(dotnet run)"
+      "Bash(dotnet run)",
+      "Bash(git stash:*)",
+      "Bash(dotnet clean:*)"
     ]
   }
 }

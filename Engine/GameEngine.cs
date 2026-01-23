@@ -17,10 +17,15 @@ public class GameEngine : IDisposable
 {
     private static readonly Random Random = new();
 
+    private const double SaucerSpawnInterval = 15.0;
+    public const int SaucerScoreValue = 200;
+
     public Ship Ship { get; private set; }
     public List<Asteroid> Asteroids { get; } = new();
     public List<Bullet> Bullets { get; } = new();
     public List<Explosion> Explosions { get; } = new();
+    public List<Saucer> Saucers { get; } = new();
+    public List<Bullet> SaucerBullets { get; } = new();
     public int Score { get; private set; }
     public int Lives { get; private set; }
     public GameState State { get; private set; }
@@ -34,6 +39,7 @@ public class GameEngine : IDisposable
     private bool _wasShootingLastFrame;
     private bool _wasThrustingLastFrame;
     private int _currentWave;
+    private double _saucerSpawnTimer;
 
     public GameEngine()
     {
@@ -52,11 +58,14 @@ public class GameEngine : IDisposable
         Lives = 3;
         State = GameState.Playing;
         _currentWave = 1;
+        _saucerSpawnTimer = SaucerSpawnInterval;
 
         Ship = new Ship(new Point(ScreenWidth / 2, ScreenHeight / 2));
         Asteroids.Clear();
         Bullets.Clear();
         Explosions.Clear();
+        Saucers.Clear();
+        SaucerBullets.Clear();
 
         SpawnWave(_currentWave);
     }
@@ -116,6 +125,8 @@ public class GameEngine : IDisposable
         UpdateShip(deltaTime);
         UpdateBullets(deltaTime);
         UpdateAsteroids(deltaTime);
+        UpdateSaucers(deltaTime);
+        UpdateSaucerBullets(deltaTime);
         UpdateExplosions(deltaTime);
         CheckCollisions();
 
@@ -204,12 +215,64 @@ public class GameEngine : IDisposable
         Explosions.RemoveAll(e => e.IsFinished);
     }
 
+    private void UpdateSaucers(double deltaTime)
+    {
+        // Spawn timer
+        _saucerSpawnTimer -= deltaTime;
+        if (_saucerSpawnTimer <= 0 && Saucers.Count == 0)
+        {
+            SpawnSaucer();
+            _saucerSpawnTimer = SaucerSpawnInterval;
+        }
+
+        // Update each saucer
+        foreach (var saucer in Saucers)
+        {
+            saucer.Update(deltaTime, ScreenWidth, ScreenHeight, Asteroids, Ship.Position);
+
+            // Try to shoot at player
+            var bullet = saucer.TryShoot(Ship.Position);
+            if (bullet != null)
+            {
+                SaucerBullets.Add(bullet);
+                Sound.PlayWeapon();
+            }
+        }
+
+        // Remove saucers that left the screen
+        Saucers.RemoveAll(s => s.IsOffScreen(ScreenWidth));
+    }
+
+    private void SpawnSaucer()
+    {
+        // Spawn from left or right edge
+        bool fromLeft = Random.Next(2) == 0;
+        int direction = fromLeft ? 1 : -1;
+        double x = fromLeft ? -20 : ScreenWidth + 20;
+        double y = 50 + Random.NextDouble() * (ScreenHeight - 100);
+
+        Saucers.Add(new Saucer(new Point(x, y), direction));
+    }
+
+    private void UpdateSaucerBullets(double deltaTime)
+    {
+        foreach (var bullet in SaucerBullets)
+        {
+            bullet.Update(deltaTime, ScreenWidth, ScreenHeight);
+        }
+
+        SaucerBullets.RemoveAll(b => !b.IsAlive);
+    }
+
     private void CheckCollisions()
     {
         var bulletsToRemove = new List<Bullet>();
         var asteroidsToRemove = new List<Asteroid>();
         var asteroidsToAdd = new List<Asteroid>();
+        var saucersToRemove = new List<Saucer>();
+        var saucerBulletsToRemove = new List<Bullet>();
 
+        // Player bullets vs asteroids
         foreach (var bullet in Bullets)
         {
             foreach (var asteroid in Asteroids)
@@ -229,36 +292,98 @@ public class GameEngine : IDisposable
             }
         }
 
+        // Player bullets vs saucers
+        foreach (var bullet in Bullets)
+        {
+            if (bulletsToRemove.Contains(bullet)) continue;
+
+            foreach (var saucer in Saucers)
+            {
+                if (bullet.CollidesWith(saucer))
+                {
+                    bulletsToRemove.Add(bullet);
+                    saucersToRemove.Add(saucer);
+
+                    Explosions.Add(new Explosion(saucer.Position, AsteroidSize.Medium));
+                    Sound.PlayExplosion();
+
+                    Score += SaucerScoreValue;
+                    break;
+                }
+            }
+        }
+
         foreach (var bullet in bulletsToRemove)
             Bullets.Remove(bullet);
 
         foreach (var asteroid in asteroidsToRemove)
             Asteroids.Remove(asteroid);
 
+        foreach (var saucer in saucersToRemove)
+            Saucers.Remove(saucer);
+
         Asteroids.AddRange(asteroidsToAdd);
 
         if (!Ship.IsInvincible)
         {
+            bool shipDestroyed = false;
+
+            // Ship vs asteroids
             foreach (var asteroid in Asteroids)
             {
                 if (Ship.CollidesWith(asteroid))
                 {
-                    Explosions.Add(Explosion.CreateShipExplosion(Ship.Position));
-                    Sound.PlayExplosion();
-                    Sound.StopThruster();
-
-                    Lives--;
-                    if (Lives <= 0)
-                    {
-                        State = GameState.GameOver;
-                    }
-                    else
-                    {
-                        Ship.Respawn(new Point(ScreenWidth / 2, ScreenHeight / 2));
-                    }
+                    shipDestroyed = true;
                     break;
                 }
             }
+
+            // Ship vs saucers (physical collision)
+            if (!shipDestroyed)
+            {
+                foreach (var saucer in Saucers)
+                {
+                    if (Ship.CollidesWith(saucer))
+                    {
+                        shipDestroyed = true;
+                        break;
+                    }
+                }
+            }
+
+            // Saucer bullets vs ship
+            if (!shipDestroyed)
+            {
+                foreach (var bullet in SaucerBullets)
+                {
+                    if (bullet.CollidesWith(Ship))
+                    {
+                        saucerBulletsToRemove.Add(bullet);
+                        shipDestroyed = true;
+                        break;
+                    }
+                }
+            }
+
+            if (shipDestroyed)
+            {
+                Explosions.Add(Explosion.CreateShipExplosion(Ship.Position));
+                Sound.PlayExplosion();
+                Sound.StopThruster();
+
+                Lives--;
+                if (Lives <= 0)
+                {
+                    State = GameState.GameOver;
+                }
+                else
+                {
+                    Ship.Respawn(new Point(ScreenWidth / 2, ScreenHeight / 2));
+                }
+            }
         }
+
+        foreach (var bullet in saucerBulletsToRemove)
+            SaucerBullets.Remove(bullet);
     }
 }

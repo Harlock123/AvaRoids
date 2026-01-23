@@ -120,6 +120,17 @@ public class GameCanvas : Control
             context.DrawEllipse(WhiteBrush, null, pos, 2, 2);
         }
 
+        foreach (var saucer in _engine.Saucers)
+        {
+            DrawPolygon(context, saucer.GetPolygonPoints(), WhitePen);
+        }
+
+        foreach (var bullet in _engine.SaucerBullets)
+        {
+            var pos = bullet.Position;
+            context.DrawEllipse(WhiteBrush, null, pos, 3, 3);
+        }
+
         if (_engine.State == GameState.Playing || _engine.State == GameState.Paused)
         {
             bool shouldDraw = !_engine.Ship.IsInvincible ||
