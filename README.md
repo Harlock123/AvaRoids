@@ -45,19 +45,22 @@ dotnet run
 - Large asteroids split into 2 medium asteroids when shot
 - Medium asteroids split into 2 small asteroids when shot
 - Small asteroids are destroyed completely when shot
-- Explosions with particle effects appear when asteroids or your ship are destroyed
-- Avoid colliding with asteroids - you have 3 lives
+- **Flying saucers** appear periodically and shoot at you - destroy them for bonus points!
+- Saucers will try to dodge asteroids while tracking your position
+- Explosions with particle effects appear when asteroids, saucers, or your ship are destroyed
+- Avoid colliding with asteroids, saucers, and saucer bullets - you have 3 lives
 - After losing a life, you respawn with brief invincibility (indicated by flashing)
 - Clear all asteroids to advance to the next wave (more asteroids spawn each wave)
 - Press ESC to pause the game at any time
 
 ## Scoring
 
-| Asteroid Size | Points |
-|---------------|--------|
-| Small | 100 |
-| Medium | 50 |
-| Large | 20 |
+| Target | Points |
+|--------|--------|
+| Small Asteroid | 100 |
+| Medium Asteroid | 50 |
+| Large Asteroid | 20 |
+| Flying Saucer | 200 |
 
 ## Physics
 
@@ -86,7 +89,8 @@ AvaRoids/
 │   ├── Ship.cs              # Player ship with thrust and rotation
 │   ├── Asteroid.cs          # Irregular polygon asteroids with splitting
 │   ├── Bullet.cs            # Projectile with lifetime limit
-│   └── Explosion.cs         # Particle explosion effect
+│   ├── Explosion.cs         # Particle explosion effect
+│   └── Saucer.cs            # Enemy UFO with AI and shooting
 ├── Engine/
 │   ├── GameEngine.cs        # Game loop, state management, collisions
 │   ├── InputHandler.cs      # Keyboard input tracking
@@ -107,6 +111,7 @@ AvaRoids/
 - **Game Loop**: 60 FPS using `DispatcherTimer`
 - **Collision Detection**: Circle-based bounding radius collision
 - **Asteroids**: Procedurally generated irregular polygons with 8-12 vertices
+- **Saucer AI**: Autonomous enemy with asteroid avoidance and player targeting
 - **Effects**: Particle-based explosion animations with fade-out
 
 ## License
