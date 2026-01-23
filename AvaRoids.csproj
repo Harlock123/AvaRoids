@@ -6,12 +6,7 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <!-- Force x64 for SDL2 compatibility (no ARM64 native library available) -->
-    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
-  <ItemGroup>
-    <None Remove="nul" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.2.1" />
