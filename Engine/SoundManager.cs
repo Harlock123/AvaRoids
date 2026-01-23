@@ -31,6 +31,7 @@ public class SoundManager : IDisposable
         {
             if (SDL.SDL_Init(SDL.SDL_INIT_AUDIO) < 0)
             {
+                Console.WriteLine($"SDL_Init failed: {SDL.SDL_GetError()}");
                 return;
             }
 
@@ -39,15 +40,24 @@ public class SoundManager : IDisposable
                 freq = 44100,
                 format = SDL.AUDIO_S16LSB,
                 channels = 2,
-                samples = 2048,
+                samples = 4096,
                 callback = AudioCallback
             };
 
-            if (SDL.SDL_OpenAudio(ref _audioSpec, out _) < 0)
+            // Use SDL_OpenAudioDevice for better cross-platform compatibility
+            _audioDevice = SDL.SDL_OpenAudioDevice(
+                null,         // Use default device
+                0,            // Not a capture device
+                ref _audioSpec,
+                out _,
+                0             // No changes allowed
+            );
+
+            if (_audioDevice == 0)
             {
+                Console.WriteLine($"SDL_OpenAudioDevice failed: {SDL.SDL_GetError()}");
                 return;
             }
-            _audioDevice = 1;
 
             string basePath = AppDomain.CurrentDomain.BaseDirectory;
             string soundsPath = Path.Combine(basePath, "Sounds");
@@ -56,11 +66,14 @@ public class SoundManager : IDisposable
             _thrusterData = LoadWavFile(Path.Combine(soundsPath, "Thruster.wav"));
             _explosionData = LoadWavFile(Path.Combine(soundsPath, "Explosion1.wav"));
 
-            SDL.SDL_PauseAudio(0);
+            // Unpause the audio device to start playback
+            SDL.SDL_PauseAudioDevice(_audioDevice, 0);
             _initialized = true;
+            Console.WriteLine("Audio initialized successfully");
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"Audio initialization error: {ex.Message}");
             _initialized = false;
         }
     }
@@ -188,7 +201,7 @@ public class SoundManager : IDisposable
     {
         if (_audioDevice != 0)
         {
-            SDL.SDL_CloseAudio();
+            SDL.SDL_CloseAudioDevice(_audioDevice);
         }
         SDL.SDL_Quit();
     }
