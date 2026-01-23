@@ -44,20 +44,12 @@ public class SoundManager : IDisposable
                 callback = AudioCallback
             };
 
-            // Use SDL_OpenAudioDevice for better cross-platform compatibility
-            _audioDevice = SDL.SDL_OpenAudioDevice(
-                null,         // Use default device
-                0,            // Not a capture device
-                ref _audioSpec,
-                out _,
-                0             // No changes allowed
-            );
-
-            if (_audioDevice == 0)
+            if (SDL.SDL_OpenAudio(ref _audioSpec, out _) < 0)
             {
-                Console.WriteLine($"SDL_OpenAudioDevice failed: {SDL.SDL_GetError()}");
+                Console.WriteLine($"SDL_OpenAudio failed: {SDL.SDL_GetError()}");
                 return;
             }
+            _audioDevice = 1;
 
             string basePath = AppDomain.CurrentDomain.BaseDirectory;
             string soundsPath = Path.Combine(basePath, "Sounds");
@@ -66,8 +58,7 @@ public class SoundManager : IDisposable
             _thrusterData = LoadWavFile(Path.Combine(soundsPath, "Thruster.wav"));
             _explosionData = LoadWavFile(Path.Combine(soundsPath, "Explosion1.wav"));
 
-            // Unpause the audio device to start playback
-            SDL.SDL_PauseAudioDevice(_audioDevice, 0);
+            SDL.SDL_PauseAudio(0);
             _initialized = true;
             Console.WriteLine("Audio initialized successfully");
         }
@@ -201,7 +192,7 @@ public class SoundManager : IDisposable
     {
         if (_audioDevice != 0)
         {
-            SDL.SDL_CloseAudioDevice(_audioDevice);
+            SDL.SDL_CloseAudio();
         }
         SDL.SDL_Quit();
     }
