@@ -6,7 +6,12 @@
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <!-- Force x64 for SDL2 compatibility (no ARM64 native library available) -->
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="nul" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.2.1" />
@@ -32,4 +37,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <!-- Copy SDL2.dll to output directory for Windows -->
+  <Target Name="CopySDL2" AfterTargets="Build" Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+    <Copy SourceFiles="$(OutDir)runtimes\win-x64\native\SDL2.dll" DestinationFolder="$(OutDir)" Condition="Exists('$(OutDir)runtimes\win-x64\native\SDL2.dll')" />
+  </Target>
 </Project>
