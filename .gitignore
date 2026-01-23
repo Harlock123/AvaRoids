@@ -96,3 +96,4 @@ Thumbs.db
 # If these are part of the source control by intention, don't ignore them.
 # Usually, they are restored via NuGet or should be kept if not available via NuGet.
 # However, bin/ and obj/ are definitely to be ignored.
+/.claude/settings.local.json
