@@ -30,8 +30,42 @@ public class GameEngine : IDisposable
     public int Lives { get; private set; }
     public GameState State { get; private set; }
 
-    public double ScreenWidth { get; set; } = 800;
-    public double ScreenHeight { get; set; } = 600;
+    private double _screenWidth = 800;
+    private double _screenHeight = 600;
+    private bool _screenWidthSet;
+    private bool _screenHeightSet;
+    private bool _initialPositionSet;
+
+    public double ScreenWidth
+    {
+        get => _screenWidth;
+        set
+        {
+            _screenWidth = value;
+            _screenWidthSet = true;
+            CheckInitialPosition();
+        }
+    }
+
+    public double ScreenHeight
+    {
+        get => _screenHeight;
+        set
+        {
+            _screenHeight = value;
+            _screenHeightSet = true;
+            CheckInitialPosition();
+        }
+    }
+
+    private void CheckInitialPosition()
+    {
+        if (!_initialPositionSet && _screenWidthSet && _screenHeightSet)
+        {
+            _initialPositionSet = true;
+            Ship.Respawn(new Point(_screenWidth / 2, _screenHeight / 2));
+        }
+    }
 
     public InputHandler Input { get; } = new();
     public SoundManager Sound { get; } = new();
@@ -308,6 +342,28 @@ public class GameEngine : IDisposable
                     Sound.PlayExplosion();
 
                     Score += SaucerScoreValue;
+                    break;
+                }
+            }
+        }
+
+        // Saucers vs asteroids
+        foreach (var saucer in Saucers)
+        {
+            if (saucersToRemove.Contains(saucer)) continue;
+
+            foreach (var asteroid in Asteroids)
+            {
+                if (saucer.CollidesWith(asteroid))
+                {
+                    saucersToRemove.Add(saucer);
+                    asteroidsToRemove.Add(asteroid);
+
+                    Explosions.Add(new Explosion(saucer.Position, AsteroidSize.Medium));
+                    Explosions.Add(new Explosion(asteroid.Position, asteroid.Size));
+                    Sound.PlayExplosion();
+
+                    asteroidsToAdd.AddRange(asteroid.Split());
                     break;
                 }
             }

@@ -22,8 +22,8 @@ public class InputHandler
         return _pressedKeys.Contains(key);
     }
 
-    public bool IsRotatingLeft => IsKeyPressed(Key.A);
-    public bool IsRotatingRight => IsKeyPressed(Key.D);
-    public bool IsThrusting => IsKeyPressed(Key.W);
+    public bool IsRotatingLeft => IsKeyPressed(Key.A) || IsKeyPressed(Key.Left);
+    public bool IsRotatingRight => IsKeyPressed(Key.D) || IsKeyPressed(Key.Right);
+    public bool IsThrusting => IsKeyPressed(Key.W) || IsKeyPressed(Key.Up);
     public bool IsShooting => IsKeyPressed(Key.Space);
 }
