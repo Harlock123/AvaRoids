@@ -30,9 +30,9 @@ dotnet run
 
 | Key | Action |
 |-----|--------|
-| **W** | Thrust forward |
-| **A** | Rotate left |
-| **D** | Rotate right |
+| **W** / **Up Arrow** | Thrust forward |
+| **A** / **Left Arrow** | Rotate left |
+| **D** / **Right Arrow** | Rotate right |
 | **Space** | Fire bullets |
 | **ESC** | Pause game |
 | **ESC** (while paused) | Exit game |
@@ -48,6 +48,7 @@ dotnet run
 - **Flying saucers** appear periodically and shoot at you - destroy them for bonus points!
 - Saucers will try to dodge asteroids while tracking your position
 - Explosions with particle effects appear when asteroids, saucers, or your ship are destroyed
+- Saucers can also be destroyed by colliding with asteroids
 - Avoid colliding with asteroids, saucers, and saucer bullets - you have 3 lives
 - After losing a life, you respawn with brief invincibility (indicated by flashing)
 - Clear all asteroids to advance to the next wave (more asteroids spawn each wave)
