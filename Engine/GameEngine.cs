@@ -84,6 +84,7 @@ public class GameEngine : IDisposable
     public void Dispose()
     {
         Sound.Dispose();
+        Input.Dispose();
     }
 
     public void StartNewGame()

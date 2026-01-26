@@ -14,6 +14,8 @@ public class GameCanvas : Control
     private readonly DispatcherTimer _gameTimer;
     private DateTime _lastUpdate;
     private bool _isThrusting;
+    private bool _wasPausePressed;
+    private bool _wasBackPressed;
 
     private static readonly IPen WhitePen = new Pen(Brushes.White, 2);
     private static readonly IPen ThinWhitePen = new Pen(Brushes.White, 1);
@@ -96,8 +98,43 @@ public class GameCanvas : Control
         _engine.ScreenWidth = Bounds.Width;
         _engine.ScreenHeight = Bounds.Height;
 
+        // Poll controller state
+        _engine.Input.Update();
+
+        // Handle controller pause/resume (with edge detection)
+        HandleControllerPause();
+
+        // Update thrust visual state from controller
+        if (_engine.Input.IsThrusting)
+            _isThrusting = true;
+        else if (!_engine.Input.IsThrusting && _engine.State == GameState.Playing)
+            _isThrusting = _engine.Input.IsThrusting;
+
         _engine.Update(deltaTime);
         InvalidateVisual();
+    }
+
+    private void HandleControllerPause()
+    {
+        // Start button toggles pause (edge detection)
+        bool pausePressed = _engine.Input.IsPausePressed;
+        if (pausePressed && !_wasPausePressed)
+        {
+            if (_engine.State == GameState.Playing)
+                _engine.Pause();
+            else if (_engine.State == GameState.Paused)
+                _engine.Resume();
+        }
+        _wasPausePressed = pausePressed;
+
+        // Back button exits when paused (edge detection)
+        bool backPressed = _engine.Input.IsBackPressed;
+        if (backPressed && !_wasBackPressed && _engine.State == GameState.Paused)
+        {
+            var window = TopLevel.GetTopLevel(this) as Window;
+            window?.Close();
+        }
+        _wasBackPressed = backPressed;
     }
 
     public override void Render(DrawingContext context)

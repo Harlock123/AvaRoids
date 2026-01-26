@@ -28,6 +28,8 @@ dotnet run
 
 ## Controls
 
+### Keyboard
+
 | Key | Action |
 |-----|--------|
 | **W** / **Up Arrow** | Thrust forward |
@@ -38,6 +40,19 @@ dotnet run
 | **ESC** (while paused) | Exit game |
 | **Any key** (while paused) | Resume game |
 | **Space** (on Game Over) | Restart game |
+
+### Controller (Xbox/PlayStation/Switch Pro)
+
+| Input | Action |
+|-------|--------|
+| **Left Stick** / **D-Pad** | Rotate and thrust |
+| **A** / **Right Trigger** | Thrust forward |
+| **X** / **B** / **Bumpers** | Fire bullets |
+| **Start** | Pause / Resume game |
+| **Back/Select** (while paused) | Exit game |
+| **A** (on Game Over) | Restart game |
+
+Controllers are automatically detected when connected. The game supports Xbox, PlayStation, Switch Pro, and most SDL2-compatible controllers.
 
 ## Gameplay
 
@@ -94,8 +109,9 @@ AvaRoids/
 │   └── Saucer.cs            # Enemy UFO with AI and shooting
 ├── Engine/
 │   ├── GameEngine.cs        # Game loop, state management, collisions
-│   ├── InputHandler.cs      # Keyboard input tracking
-│   └── SoundManager.cs      # SDL2-based audio playback
+│   ├── InputHandler.cs      # Keyboard and controller input tracking
+│   ├── ControllerManager.cs # SDL2 gamepad support
+│   └── SoundManager.cs      # Cross-platform audio playback
 ├── Views/
 │   └── GameCanvas.cs        # Custom Avalonia control for rendering
 └── Sounds/
@@ -107,7 +123,8 @@ AvaRoids/
 ## Technical Details
 
 - **Framework**: Avalonia UI 11.x
-- **Audio**: SDL2 native audio API with custom mixing (bundled libraries)
+- **Audio**: NetCoreAudio for cross-platform sound playback
+- **Controller**: SDL2 GameController API for cross-platform gamepad support
 - **Rendering**: Custom `Control` with `DrawingContext` for vector graphics
 - **Game Loop**: 60 FPS using `DispatcherTimer`
 - **Collision Detection**: Circle-based bounding radius collision
