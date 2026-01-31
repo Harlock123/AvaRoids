@@ -108,6 +108,7 @@ Controllers are automatically detected when connected. The game supports Xbox, P
 - **Weapon**: Fires when shooting bullets
 - **Thruster**: Loops while holding the thrust key
 - **Explosion**: Plays when asteroids or ship are destroyed
+- **Saucer Alert**: Plays when a flying saucer appears on screen
 
 ## Project Structure
 
@@ -140,7 +141,8 @@ AvaRoids/
 └── Sounds/
     ├── Weapon.wav          # Shooting sound effect
     ├── Thruster.wav        # Engine thrust sound
-    └── Explosion1.wav      # Explosion sound effect
+    ├── Explosion1.wav      # Explosion sound effect
+    └── SaucerAlert.wav     # Saucer spawn alert sound
 ```
 
 ## Technical Details

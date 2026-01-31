@@ -320,6 +320,7 @@ public class GameEngine : IDisposable
         double y = 50 + Random.NextDouble() * (ScreenHeight - 100);
 
         Saucers.Add(new Saucer(new Point(x, y), direction));
+        Sound.PlaySaucerAlert();
     }
 
     private void UpdateSaucerBullets(double deltaTime)

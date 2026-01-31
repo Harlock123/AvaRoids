@@ -77,6 +77,12 @@ public class SoundManager : IDisposable
         PlaySound("Explosion1.wav");
     }
 
+    public void PlaySaucerAlert()
+    {
+        if (IsMuted) return;
+        PlaySound("SaucerAlert.wav");
+    }
+
     private async void PlaySound(string filename)
     {
         var path = Path.Combine(_soundsPath, filename);
