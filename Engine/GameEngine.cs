@@ -8,6 +8,7 @@ namespace AvaRoids.Engine;
 
 public enum GameState
 {
+    StartScreen,
     Playing,
     Paused,
     GameOver
@@ -78,7 +79,22 @@ public class GameEngine : IDisposable
     public GameEngine()
     {
         Ship = new Ship(new Point(ScreenWidth / 2, ScreenHeight / 2));
-        StartNewGame();
+        State = GameState.StartScreen;
+        SpawnStartScreenAsteroids();
+    }
+
+    private void SpawnStartScreenAsteroids()
+    {
+        // Spawn some asteroids for the start screen background
+        for (int i = 0; i < 5; i++)
+        {
+            var position = new Point(
+                Random.NextDouble() * ScreenWidth,
+                Random.NextDouble() * ScreenHeight
+            );
+            var size = (AsteroidSize)Random.Next(3);
+            Asteroids.Add(new Asteroid(position, size));
+        }
     }
 
     public void Dispose()
@@ -142,6 +158,19 @@ public class GameEngine : IDisposable
 
     public void Update(double deltaTime)
     {
+        if (State == GameState.StartScreen)
+        {
+            // Update asteroids so they float around on the start screen
+            UpdateAsteroids(deltaTime);
+
+            if (Input.IsShooting && !_wasShootingLastFrame)
+            {
+                StartNewGame();
+            }
+            _wasShootingLastFrame = Input.IsShooting;
+            return;
+        }
+
         if (State == GameState.GameOver)
         {
             if (Input.IsShooting && !_wasShootingLastFrame)
@@ -197,6 +226,10 @@ public class GameEngine : IDisposable
             Ship.RotateLeft(deltaTime);
         if (Input.IsRotatingRight)
             Ship.RotateRight(deltaTime);
+
+        // Apply mouse wheel rotation directly (faster than key rotation)
+        if (Input.MouseWheelDelta != 0)
+            Ship.Rotation += Input.MouseWheelDelta * 0.3;
 
         if (Input.IsThrusting)
         {

@@ -14,6 +14,11 @@ public class InputHandler : IDisposable
     // Threshold for trigger to register as pressed
     private const float TriggerThreshold = 0.3f;
 
+    // Mouse state
+    private bool _leftMousePressed;
+    private bool _rightMousePressed;
+    private double _mouseWheelDelta;
+
     public void OnKeyDown(Key key)
     {
         _pressedKeys.Add(key);
@@ -29,10 +34,41 @@ public class InputHandler : IDisposable
         return _pressedKeys.Contains(key);
     }
 
+    public void OnMouseDown(MouseButton button)
+    {
+        if (button == MouseButton.Left)
+            _leftMousePressed = true;
+        else if (button == MouseButton.Right)
+            _rightMousePressed = true;
+    }
+
+    public void OnMouseUp(MouseButton button)
+    {
+        if (button == MouseButton.Left)
+            _leftMousePressed = false;
+        else if (button == MouseButton.Right)
+            _rightMousePressed = false;
+    }
+
+    public void OnMouseWheel(double delta)
+    {
+        _mouseWheelDelta += delta;
+    }
+
     public void Update()
     {
         _controller.Update();
     }
+
+    public void PostUpdate()
+    {
+        // Reset mouse wheel delta after each frame
+        _mouseWheelDelta = 0;
+    }
+
+    public bool IsLeftMousePressed => _leftMousePressed;
+    public bool IsRightMousePressed => _rightMousePressed;
+    public double MouseWheelDelta => _mouseWheelDelta;
 
     public bool IsControllerConnected => _controller.IsConnected;
 
@@ -54,14 +90,16 @@ public class InputHandler : IDisposable
         _controller.DPadUp ||
         _controller.LeftStickY < -StickThreshold ||  // Up is negative Y
         _controller.RightTrigger > TriggerThreshold ||
-        _controller.ButtonA;
+        _controller.ButtonA ||
+        _rightMousePressed;
 
     public bool IsShooting =>
         IsKeyPressed(Key.Space) ||
         _controller.ButtonX ||
         _controller.ButtonB ||
         _controller.RightBumper ||
-        _controller.LeftBumper;
+        _controller.LeftBumper ||
+        _leftMousePressed;
 
     public bool IsPausePressed =>
         _controller.ButtonStart;

@@ -1,7 +1,9 @@
 using System;
+using System.IO;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using AvaRoids.Engine;
 using AvaRoids.Models;
@@ -51,6 +53,16 @@ public class GameCanvas : Control
 
     protected override void OnKeyDown(Avalonia.Input.KeyEventArgs e)
     {
+        // Handle Ctrl+S (or Cmd+S on macOS) for screenshot
+        if (e.Key == Avalonia.Input.Key.S &&
+            (e.KeyModifiers.HasFlag(Avalonia.Input.KeyModifiers.Control) ||
+             e.KeyModifiers.HasFlag(Avalonia.Input.KeyModifiers.Meta)))
+        {
+            TakeScreenshot();
+            e.Handled = true;
+            return;
+        }
+
         if (e.Key == Avalonia.Input.Key.Escape)
         {
             if (_engine.State == GameState.Playing)
@@ -87,6 +99,48 @@ public class GameCanvas : Control
         e.Handled = true;
     }
 
+    protected override void OnPointerPressed(Avalonia.Input.PointerPressedEventArgs e)
+    {
+        var props = e.GetCurrentPoint(this).Properties;
+        if (props.IsLeftButtonPressed)
+            _engine.Input.OnMouseDown(Avalonia.Input.MouseButton.Left);
+        if (props.IsRightButtonPressed)
+            _engine.Input.OnMouseDown(Avalonia.Input.MouseButton.Right);
+        e.Handled = true;
+    }
+
+    protected override void OnPointerReleased(Avalonia.Input.PointerReleasedEventArgs e)
+    {
+        var props = e.GetCurrentPoint(this).Properties;
+        if (!props.IsLeftButtonPressed)
+            _engine.Input.OnMouseUp(Avalonia.Input.MouseButton.Left);
+        if (!props.IsRightButtonPressed)
+            _engine.Input.OnMouseUp(Avalonia.Input.MouseButton.Right);
+        e.Handled = true;
+    }
+
+    protected override void OnPointerWheelChanged(Avalonia.Input.PointerWheelEventArgs e)
+    {
+        _engine.Input.OnMouseWheel(e.Delta.Y);
+        e.Handled = true;
+    }
+
+    private void TakeScreenshot()
+    {
+        var pixelSize = new PixelSize((int)Bounds.Width, (int)Bounds.Height);
+        if (pixelSize.Width <= 0 || pixelSize.Height <= 0)
+            return;
+
+        using var bitmap = new RenderTargetBitmap(pixelSize);
+        bitmap.Render(this);
+
+        var picturesPath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+        var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+        var filename = Path.Combine(picturesPath, $"AvaRoids_{timestamp}.png");
+
+        bitmap.Save(filename);
+    }
+
     private void GameLoop(object? sender, EventArgs e)
     {
         var now = DateTime.Now;
@@ -111,6 +165,7 @@ public class GameCanvas : Control
             _isThrusting = _engine.Input.IsThrusting;
 
         _engine.Update(deltaTime);
+        _engine.Input.PostUpdate();
         InvalidateVisual();
     }
 
@@ -168,7 +223,7 @@ public class GameCanvas : Control
             context.DrawEllipse(WhiteBrush, null, pos, 3, 3);
         }
 
-        if (_engine.State == GameState.Playing || _engine.State == GameState.Paused)
+        if (_engine.State == GameState.Playing || _engine.State == GameState.Paused || _engine.State == GameState.StartScreen)
         {
             bool shouldDraw = !_engine.Ship.IsInvincible ||
                               (int)(DateTime.Now.Millisecond / 100) % 2 == 0;
@@ -212,9 +267,87 @@ public class GameCanvas : Control
         }
     }
 
+    private void DrawStartScreen(DrawingContext context, Typeface typeface)
+    {
+        var titleText = new FormattedText(
+            "AVAROIDS",
+            System.Globalization.CultureInfo.CurrentCulture,
+            FlowDirection.LeftToRight,
+            typeface,
+            64,
+            Brushes.White
+        );
+        context.DrawText(titleText, new Point(
+            (Bounds.Width - titleText.Width) / 2,
+            80
+        ));
+
+        var instructions = new[]
+        {
+            "KEYBOARD",
+            "W / UP         Thrust",
+            "A / LEFT       Rotate Left",
+            "D / RIGHT      Rotate Right",
+            "SPACE          Fire",
+            "",
+            "MOUSE",
+            "Right Button   Thrust",
+            "Left Button    Fire",
+            "Scroll Wheel   Rotate",
+            "",
+            "OTHER",
+            "ESC            Pause",
+            "CTRL/CMD+S     Screenshot",
+            "",
+            "SCORING",
+            "Large Asteroid    20",
+            "Medium Asteroid   50",
+            "Small Asteroid   100",
+            "Flying Saucer    200"
+        };
+
+        double y = 160;
+        foreach (var line in instructions)
+        {
+            int fontSize = line is "KEYBOARD" or "MOUSE" or "OTHER" or "SCORING" ? 18 : 14;
+            var text = new FormattedText(
+                line,
+                System.Globalization.CultureInfo.CurrentCulture,
+                FlowDirection.LeftToRight,
+                typeface,
+                fontSize,
+                Brushes.White
+            );
+            context.DrawText(text, new Point(
+                (Bounds.Width - text.Width) / 2,
+                y
+            ));
+            y += fontSize + 6;
+        }
+
+        var startText = new FormattedText(
+            "Press SPACE to start",
+            System.Globalization.CultureInfo.CurrentCulture,
+            FlowDirection.LeftToRight,
+            typeface,
+            28,
+            Brushes.White
+        );
+        context.DrawText(startText, new Point(
+            (Bounds.Width - startText.Width) / 2,
+            Bounds.Height - 80
+        ));
+    }
+
     private void DrawHUD(DrawingContext context)
     {
         var typeface = new Typeface("Consolas", FontStyle.Normal, FontWeight.Bold);
+
+        if (_engine.State == GameState.StartScreen)
+        {
+            DrawStartScreen(context, typeface);
+            return;
+        }
 
         var scoreText = new FormattedText(
             $"SCORE: {_engine.Score}",
