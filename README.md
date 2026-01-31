@@ -8,7 +8,7 @@ The game features classic vector-style graphics with white lines on a black back
 
 | Start Screen | Gameplay | Game Over |
 |:------------:|:--------:|:---------:|
-| ![Start Screen](IMAGES/AVAROIDS0.png) | ![Gameplay](IMAGES/AVAROIDS1.png) | ![Game Over](IMAGES/AVAROIDS2.png) |
+| ![Start Screen](Images/AVAROIDS0.png) | ![Gameplay](Images/AVAROIDS1.png) | ![Game Over](Images/AVAROIDS2.png) |
 
 ## Requirements
 
@@ -118,7 +118,7 @@ AvaRoids/
 ├── Program.cs
 ├── App.axaml / App.axaml.cs
 ├── MainWindow.axaml / MainWindow.axaml.cs
-├── IMAGES/
+├── Images/
 │   ├── AVAROIDS0.png       # Title screen screenshot
 │   ├── AVAROIDS1.png       # Gameplay screenshot
 │   └── AVAROIDS2.png       # Game over screenshot
