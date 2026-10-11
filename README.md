@@ -10,12 +10,49 @@ The game features classic vector-style graphics with white lines on a black back
 |:------------:|:--------:|:---------:|
 | ![Start Screen](Images/AVAROIDS0.png) | ![Gameplay](Images/AVAROIDS1.png) | ![Game Over](Images/AVAROIDS2.png) |
 
+## Download and run
+
+Ready-to-run builds for Windows, macOS and Linux, on both Intel/AMD and ARM, are on the
+[Releases page](https://github.com/Harlock123/AvaRoids/releases). **Latest build** is rebuilt on
+every push to `main`. Each download is one self-contained executable: no .NET install is
+needed.
+
+```bash
+tar -xzf AvaRoids-linux-arm64.tar.gz      # or linux-x64, linux-arm, osx-arm64, osx-x64
+./AvaRoids
+```
+
+On Windows, unzip `AvaRoids-win-x64.zip` (or `-win-arm64`) and run `AvaRoids.exe`. On macOS, if
+Gatekeeper refuses to open it, run `xattr -d com.apple.quarantine AvaRoids` once.
+
+### Linux: sound and gamepads
+
+- **Sound** needs `aplay`, from the `alsa-utils` package. Without it the game runs but is
+  silent. Minimal installs (Arch, Omarchy, some Raspberry Pi images) don't include it:
+
+  ```bash
+  sudo apt install alsa-utils             # Debian / Ubuntu / Raspberry Pi OS
+  sudo pacman -S --needed alsa-utils      # Arch / Omarchy
+  ```
+
+- **Gamepads** use SDL2. It is bundled for Windows, macOS and Intel/AMD Linux, but **ARM Linux builds need it
+  installed**. Without it the keyboard still works; only the controller does not:
+
+  ```bash
+  sudo apt install libsdl2-dev            # Debian / Ubuntu / Raspberry Pi OS
+  sudo pacman -S --needed sdl2-compat     # Arch / Omarchy
+  ```
+
+  On Debian-based systems it has to be `libsdl2-dev`: the game looks for `libSDL2.so`, which
+  the runtime-only `libsdl2-2.0-0` package doesn't provide.
+
 ## Requirements
 
 - .NET 9.0 SDK
 - Compatible with Windows, macOS, and Linux
 
-SDL2 native libraries are bundled with the application - no additional installation required.
+SDL2 is bundled for Windows, macOS and Intel/AMD Linux; ARM Linux needs it installed (see
+[Linux: sound and gamepads](#linux-sound-and-gamepads)).
 
 ## Building and Running
 
